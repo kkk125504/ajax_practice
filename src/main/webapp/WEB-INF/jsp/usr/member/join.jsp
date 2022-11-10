@@ -5,23 +5,16 @@
 <script>
 let MemberJoin__submitDone = false;
 let 중복체크 = false;
-let exsistLoginId = true;
 function MemberJoin__submit(form){
 	if(MemberJoin__submitDone){
 		alert('이미 처리중 입니다.');
 		return;
 	}
-	if(중복체크==false){
-		alert('중복체크를 해주세요');
+	if(중복체크 == false){
+		alert('아이디를 다시 입력해주세요.');
 		return;
 	}
-	
-	if(exsistLoginId){
-		alert('중복된 아이디가 존재합니다.');
-		form.loginId.focus();
-		return;
-	}
-			
+				
 	form.loginId.value = form.loginId.value.trim();
 	
 	if(form.loginId.value.length == 0){
@@ -77,34 +70,7 @@ function MemberJoin__submit(form){
 	MemberJoin__submitDone = true;
 	form.submit();		
 }
-//로그인 아이디 중복체크
 
-function LoginId__duplicateCheck() {
-	var id = $('input[name=loginId]').val().trim();
-	if(id.length == 0){
-		alert('아이디를 입력하세요');
-		return;
-	}
-	$.get('../member/loginIdDuplicateCheck', {
-		loginId : id,
-		ajaxMode : 'Y'
-	}, function(data) {
-		중복체크 = true;
-		if(data.resultCode=='S-1'){
-			$('#loginIdDupCheck').toggleClass();			
-			$('#loginIdDupCheck').addClass('text-green-500');
-			$('#loginIdDupCheck').empty().html(data.msg);			
-			exsistLoginId = false;
-		}
-		
-		if(data.resultCode=='F-1'){
-			$('#loginIdDupCheck').toggleClass();		
-			$('#loginIdDupCheck').addClass('text-red-500');
-			$('#loginIdDupCheck').empty().html(data.msg);
-			exsistLoginId = true;
-		}		
-	}, 'json');			
-}
 </script>	
 	
 	<section class="mt-8 text-xl">
@@ -118,9 +84,8 @@ function LoginId__duplicateCheck() {
 						<tr>
 							<td>아이디</td>
 							<td>
-								<input required="required" type="text" class="w-4/6 input input-bordered input-lg" name="loginId" placeholder="아이디를 입력해주세요." />
-								<button type="button" onclick="LoginId__duplicateCheck()">중복 체크</button>
-								<div id="loginIdDupCheck">중복체크 해주세요</div>
+								<input required="required" type="text" class="w-4/6 input input-bordered input-lg input_loginId" name="loginId" placeholder="아이디를 입력해주세요." />							
+								<div id="loginIdDupCheck"></div>
 							</td>						
 						</tr>
 						<tr>
@@ -157,4 +122,36 @@ function LoginId__duplicateCheck() {
 			</form>
 		</div>
 	</section>
+	
+	<script>
+	//로그인 아이디 중복체크
+	 $('.input_loginId').focusout(function(){
+	 	var id = $('input[name=loginId]').val().trim();
+		
+	 	if(id.length == 0){
+	 		alert('아이디를 입력하세요');
+	 		id.focus();
+	 		return;
+	 	}
+		
+	 	$.get('../member/loginIdDuplicateCheck', {
+	 		loginId : id,
+	 		ajaxMode : 'Y'
+	 	}, function(data) {
+	 		if(data.resultCode=='S-1'){
+	 			$('#loginIdDupCheck').toggleClass();			
+	 			$('#loginIdDupCheck').addClass('text-green-500');
+	 			$('#loginIdDupCheck').empty().html(data.msg);
+	 			중복체크 = true;
+	 		}
+			
+	 		if(data.resultCode=='F-1'){
+	 			$('#loginIdDupCheck').toggleClass();		
+	 			$('#loginIdDupCheck').addClass('text-red-500');
+	 			$('#loginIdDupCheck').empty().html(data.msg);
+	 			중복체크 = false;
+	 		}		
+	 	}, 'json');			
+	})
+	</script>
 <%@ include file="../common/foot.jspf" %>
